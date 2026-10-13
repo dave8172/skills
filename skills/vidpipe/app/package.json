@@ -1,0 +1,20 @@
+{
+  "name": "vidpipe",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Article -> short silent explainer video (JSON spec -> 720p MP4)",
+  "type": "module",
+  "main": "render.mjs",
+  "scripts": {
+    "setup": "npx playwright install chromium",
+    "check": "node render.mjs"
+  },
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "playwright": "^1.40.0",
+    "sharp": "^0.33.0",
+    "@fontsource-variable/inter-tight": "^5.0.0",
+    "@fontsource/jetbrains-mono": "^5.0.0"
+  }
+}

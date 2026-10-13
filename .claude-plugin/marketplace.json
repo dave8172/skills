@@ -1,0 +1,40 @@
+{
+  "name": "dave8172-skills",
+  "owner": {
+    "name": "dave8172"
+  },
+  "metadata": {
+    "description": "Agent skills by dave8172: Upwork job sweeps, article-to-video explainers, and RAM cleanup for agent machines",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "all",
+      "description": "Every skill in this repo",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/upsweep", "./skills/vidpipe", "./skills/clean-ram"]
+    },
+    {
+      "name": "upsweep",
+      "description": "Find Upwork jobs that match your filters and see what clients in your niche ask for, through Upwork's official MCP",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/upsweep"]
+    },
+    {
+      "name": "vidpipe",
+      "description": "Turn an article into a silent 720p explainer video of at most 60 s, paced so every word can be read",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/vidpipe"]
+    },
+    {
+      "name": "clean-ram",
+      "description": "Free memory on a small Linux machine by stopping processes that agent sessions left behind",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/clean-ram"]
+    }
+  ]
+}

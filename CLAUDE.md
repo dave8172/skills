@@ -1,0 +1,9 @@
+# skills
+
+Public agent skills, one folder each under `skills/<name>/` (`SKILL.md`, a `README.md` for people, plus any scripts). This file is public, so keep it publication-safe: no personal data, no private project names, no machine-specific paths.
+
+- **Install paths that must keep working:** `npx skills add dave8172/skills [--skill <name>]` (scans `skills/*/SKILL.md`) and the Claude Code marketplace in `.claude-plugin/marketplace.json` (one plugin per skill plus `all`). A new skill gets a row in `README.md`, a plugin entry for itself, and a path in `all`.
+- **upsweep:** Upwork's API & MCP Terms are the hard boundary. It runs on demand only, uses the user's own criteria with no ranking of its own, stores no job data, only reads during a sweep, and submits a proposal only after the user approves Upwork's preview, one at a time. Any change must keep all of that. The clauses are cited in its SKILL.md. Test it like a new user: use an empty folder with `.claude/skills/upsweep` symlinked to `skills/upsweep`, a fresh `UPSWEEP_DIR`, and every Upwork write tool in `--disallowedTools`. Say "upsweep", then "ok". Afterwards, check that nothing except `profile.md` was written.
+- **vidpipe:** the limits are the product. Keep it 720p, silent and at most 60 s, and keep the reading rule (0.7 s + words ÷ 3) and the size floor (`MIN_FS`). The renderer refuses specs that break them. Never add a bypass flag. Test: in `skills/vidpipe/app`, run `npm install`, then `node render.mjs ../examples/dns.json --check`, then `--preview`, then a full render. A new scene type must declare all its text in `plan`.
+- **clean-ram:** generic Linux only. Don't name particular services, hosts or users.
+- Libraries take version ranges, never pins. Skills stand alone and point to nothing outside this repo.

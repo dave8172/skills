@@ -1,0 +1,49 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>vidpipe engine</title>
+<style>
+@font-face{font-family:Disp;src:url(../node_modules/@fontsource-variable/inter-tight/files/inter-tight-latin-wght-normal.woff2) format('woff2');font-weight:100 900}
+@font-face{font-family:Mono;src:url(../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2);font-weight:500}
+:root{--paper:#f6f4ef;--ink:#17171c;--mute:#77756e;--faint:#b9b6ad;--line:#e2dfd6;--card:#fffdf8;--acc:#ff5a1f;--accT:#ffe6dc;--dot:#dcd8cd}
+*{box-sizing:border-box}
+html,body{margin:0;background:#000;overflow:hidden}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Disp;-webkit-font-smoothing:antialiased;transform-origin:0 0}
+#dots{position:absolute;inset:-100px;background-image:radial-gradient(var(--dot) 1.6px,transparent 1.9px);background-size:40px 40px}
+canvas{position:absolute;left:0;top:0;pointer-events:none}
+.abs{position:absolute;left:0;top:0}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px}
+.m{display:inline-block;overflow:hidden;vertical-align:top;padding:.04em .05em .12em}
+.w{display:inline-block}
+.mono{font-family:Mono;font-weight:500;letter-spacing:.14em;text-transform:uppercase}
+.ser{font-family:Disp;font-weight:480;letter-spacing:-.01em}
+.cap{position:absolute;left:140px;font-size:66px;font-weight:620;letter-spacing:-.035em;line-height:1.05;white-space:nowrap}
+.cap2{color:var(--mute)}
+#hdr{left:140px;top:60px;font-size:24px;color:var(--mute)}
+#badge{top:52px;height:44px;border:2px solid var(--ink);border-radius:999px;font-family:Mono;font-size:24px;display:flex;align-items:center;gap:10px;padding:0 18px;background:var(--card);white-space:nowrap}
+#badge i{width:10px;height:10px;border-radius:50%;background:var(--acc);display:block}
+#chap{left:140px;top:960px;width:1640px;height:60px}
+.seg{position:absolute;top:0;height:60px}
+.seg .sl{font-family:Mono;font-size:22px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);white-space:nowrap}
+.seg .sb{position:absolute;left:0;right:0;top:36px;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.seg .sb i{display:block;height:100%;background:var(--ink);transform-origin:0 50%}
+.chip{position:absolute;left:0;top:0;font-family:Mono;font-weight:500;line-height:1.2;border:2px solid transparent;border-radius:.3em;white-space:pre;display:flex;align-items:center}
+.chip .dt{opacity:.45}
+.sub{position:absolute;font-family:Mono;font-size:30px;color:var(--mute);text-align:center;width:240px;white-space:nowrap}
+.card{position:absolute;background:var(--card);border:2px solid var(--ink);border-radius:20px;box-shadow:0 30px 60px -30px rgba(23,23,28,.35)}
+.bar{position:absolute;height:44px;border-radius:6px;transform-origin:0 50%}
+.val{position:absolute;font-family:Mono;font-size:32px;font-weight:500;white-space:nowrap}
+.lbl{position:absolute;font-family:Mono;font-size:26px;color:var(--mute);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.cell{position:absolute;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:Mono;font-weight:500}
+.node{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;background:var(--card);border:2px solid var(--ink);border-radius:18px;font-weight:600;letter-spacing:-.02em;line-height:1.1}
+</style></head>
+<body>
+<div id="stage">
+  <div id="dots"></div>
+  <canvas id="under" width="1920" height="1080"></canvas>
+  <div id="scenes"></div>
+  <div id="hdr" class="abs mono"></div>
+  <div id="badge" class="abs"><i></i><span></span></div>
+  <div id="chap" class="abs"></div>
+  <canvas id="fx" width="1920" height="1080"></canvas>
+</div>
+<script src="engine.js"></script>
+</body></html>

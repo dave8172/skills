@@ -1,0 +1,29 @@
+{
+  "series": "Networking basics",
+  "scenes": [
+    { "type": "title", "title": "How DNS finds a website" },
+    { "type": "statement", "text": "Computers find each other\nby number, not by name.", "muteLine": 1 },
+    {
+      "type": "flow",
+      "chapter": "Lookup",
+      "caption": "Your browser asks a resolver.",
+      "nodes": ["Browser", "Resolver", "Root", ".com servers", "Site's server"],
+      "highlight": 4,
+      "note": "Each step points to the next"
+    },
+    {
+      "type": "stat",
+      "chapter": "Root",
+      "caption": "The root is a short list.",
+      "value": "13",
+      "label": "root server names, a to m"
+    },
+    {
+      "type": "statement",
+      "chapter": "Cache",
+      "text": "The answer is saved,\nso the next visit skips the walk.",
+      "muteLine": 1
+    },
+    { "type": "end", "url": "example.com/dns", "next": "Next: How HTTPS keeps it private" }
+  ]
+}
