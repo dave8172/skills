@@ -40,7 +40,7 @@
     },
     {
       "name": "clean-ram",
-      "description": "Free memory on a small Linux machine by stopping processes that agent sessions left behind",
+      "description": "Free memory on a small Linux machine: find processes that agent sessions left behind and stop the ones you approve",
       "source": "./",
       "strict": false,
       "skills": [

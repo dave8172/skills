@@ -5,8 +5,8 @@
 Agents start headless browsers, dev servers and mock servers, and often leave them running when the session ends. On a small VPS or cloud VM they pile up until the machine swaps. Say **"clean ram"** and the agent will:
 
 - survey memory, swap, ports and process trees
-- stop orphaned browsers and dev servers that nothing is using
-- ask before touching other agent sessions, tmux or SSH logins
+- list orphaned browsers and dev servers, with why each looks safe to stop or why it might still be needed (connections, a reverse proxy, another agent session in the same folder)
+- stop only the ones you approve, after checking each PID is still the same process
 - never touch services, containers, databases or its own process tree
 - report what it stopped, and memory before and after
 

@@ -1,13 +1,13 @@
 ---
 name: close-session
-description: End a working session cleanly so the next one continues without re-reading, re-asking or re-discovering. Saves only what is worth keeping (state, decisions, preferences, gotchas) into the user's existing memory or notes system in compact, sectioned form, or recommends a minimal one if there is none. Then stops what the session left running and reports what is still open. Use when the user says "close the session", "log the useful things and close cleanly", "wrap up", "save context for next time", or runs /close-session.
+description: End a working session cleanly so the next one continues without re-reading, re-asking or re-discovering. Saves only what is worth keeping (state, decisions, preferences, gotchas) into the user's existing memory or notes system in compact, sectioned form, or recommends a minimal one if there is none. Then reports what is still open: uncommitted work, unkept promises, the next step. Use when the user says "close the session", "log the useful things and close cleanly", "wrap up", "save context for next time", or runs /close-session.
 ---
 
 # close-session
 
 **Goal:** the next session picks up where this one stopped, at the lowest token cost. That means two jobs:
 1. Save what is worth keeping, compactly, where the next session will find it.
-2. Leave the workspace clean.
+2. Report what is still open, so nothing is lost.
 
 ## Rules
 
@@ -18,7 +18,7 @@ description: End a working session cleanly so the next one continues without re-
 - **Strict sections with stable headings,** so a later session runs `grep -n '^## '` and reads one section instead of the whole file.
 - **Indexes stay small.** They are read every session. One line per entry.
 - **Never store secret values.** Store where a secret lives (a path or an env var name), never the value. Store other people's personal details only if the user asks.
-- **Never commit, push, deploy or delete** unless the user or the project's own rules say to.
+- **Never commit, push, deploy or delete** unless the user or the project's own rules say to. **Never stop processes:** another session may still be using them.
 - **The user's existing system wins.** Its file names, formats and rules override the defaults here.
 
 ## 1. Find the memory system
@@ -75,13 +75,11 @@ Go through the whole session. If the context was compacted, the summary counts a
   - anything still running or uncommitted
 - **Don't re-read files to check your writes.** A failed write shows up as a tool error.
 
-## 4. Close cleanly
+## 4. Check what is still open
 
-Fix what this session caused. Report everything else.
-
-- **Processes this session started** (dev servers, browsers, watchers, background jobs): stop each one by its PID. Don't use `pkill -f`, which can match your own shell. Leave processes you didn't start alone.
-- **Temp files this session made** outside a scratch folder: remove them if they are clearly yours and disposable. Otherwise list them.
-- **Uncommitted or unpushed work:** report each repo with its count of changes. Commit only if allowed (see Rules), and only your own files.
+Report these. Don't fix them:
+- **Running:** processes you know this session started (dev servers, watchers, background jobs). List them, but never stop them, because another session or the user may still be using them.
+- **Uncommitted or unpushed work:** each repo, with its count of changes. Commit only if allowed (see Rules), and only your own files.
 - **Promises not kept:** anything you said you'd do but didn't goes into the handoff.
 
 ## 5. Report

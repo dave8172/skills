@@ -8,12 +8,12 @@ Say **"close the session"** (or run `/close-session`) before you quit, and the a
 - save only what the next session needs: where the work stands, decisions and why, your corrections, gotchas, pointers
 - write it compactly, one line per fact under fixed headings, so a later session reads one section instead of a whole file
 - update or delete old entries instead of adding duplicates
-- stop processes the session started, and list uncommitted work
+- list what's still open: uncommitted work, processes it started, the next step
 - give you a one-line prompt to resume with
 
 No memory system yet? It recommends a small one (an index file plus topic files) and sets it up if you agree. In a chat app with no files, it gives you a handoff block to paste instead.
 
-It never stores secret values, and it never commits, pushes or deletes your work unless you or your project's rules say so.
+It never stores secret values. It never stops processes, since another session may still need them. It never commits, pushes or deletes your work unless you or your project's rules say so.
 
 ## Install
 
