@@ -7,6 +7,7 @@
 | [**upsweep**](skills/upsweep) | Finds Upwork jobs that match your filters, and sums up what clients in your niche keep asking for. Uses Upwork's official MCP, with your own login. |
 | [**vidpipe**](skills/vidpipe) | Turns an article into a silent 720p explainer video of at most 60 s, paced so every word can be read. |
 | [**clean-ram**](skills/clean-ram) | Frees memory on a small Linux machine by stopping the browsers and dev servers that agent sessions left behind. |
+| [**close-session**](skills/close-session) | Ends a session cleanly: saves what the next session needs into your memory or notes, compactly and in sections, then stops what was left running. |
 
 ## Install
 
@@ -23,8 +24,11 @@ To update later, run `npx skills update`.
 **Claude Code plugin:**
 
 ```
-/plugin install vidpipe --marketplace dave8172/skills      # one skill (or upsweep, clean-ram)
-/plugin install all --marketplace dave8172/skills          # every skill
+/plugin install upsweep --marketplace dave8172/skills          # one skill
+/plugin install vidpipe --marketplace dave8172/skills
+/plugin install clean-ram --marketplace dave8172/skills
+/plugin install close-session --marketplace dave8172/skills
+/plugin install all --marketplace dave8172/skills              # every skill
 ```
 
 On Claude Code older than 2.1.275, run `/plugin marketplace add dave8172/skills` first, then `/plugin install <name>@dave8172-skills`.

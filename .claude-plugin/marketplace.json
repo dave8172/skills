@@ -4,7 +4,7 @@
     "name": "dave8172"
   },
   "metadata": {
-    "description": "Agent skills by dave8172: Upwork job sweeps, article-to-video explainers, and RAM cleanup for agent machines",
+    "description": "Agent skills by dave8172: Upwork job sweeps, article-to-video explainers, RAM cleanup for agent machines, and clean session handoffs",
     "version": "1.0.0"
   },
   "plugins": [
@@ -13,28 +13,48 @@
       "description": "Every skill in this repo",
       "source": "./",
       "strict": false,
-      "skills": ["./skills/upsweep", "./skills/vidpipe", "./skills/clean-ram"]
+      "skills": [
+        "./skills/upsweep",
+        "./skills/vidpipe",
+        "./skills/clean-ram",
+        "./skills/close-session"
+      ]
     },
     {
       "name": "upsweep",
       "description": "Find Upwork jobs that match your filters and see what clients in your niche ask for, through Upwork's official MCP",
       "source": "./",
       "strict": false,
-      "skills": ["./skills/upsweep"]
+      "skills": [
+        "./skills/upsweep"
+      ]
     },
     {
       "name": "vidpipe",
       "description": "Turn an article into a silent 720p explainer video of at most 60 s, paced so every word can be read",
       "source": "./",
       "strict": false,
-      "skills": ["./skills/vidpipe"]
+      "skills": [
+        "./skills/vidpipe"
+      ]
     },
     {
       "name": "clean-ram",
       "description": "Free memory on a small Linux machine by stopping processes that agent sessions left behind",
       "source": "./",
       "strict": false,
-      "skills": ["./skills/clean-ram"]
+      "skills": [
+        "./skills/clean-ram"
+      ]
+    },
+    {
+      "name": "close-session",
+      "description": "End a session cleanly: save what the next session needs, compactly and in sections, into your memory or notes",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/close-session"
+      ]
     }
   ]
 }
