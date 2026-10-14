@@ -50,7 +50,7 @@ const main = await openPage();
 const TL = main.tl;
 // ---------- report ----------
 console.log('\nscenes:'); TL.scenes.forEach((s, i) => console.log(`  ${String(i).padStart(2)} ${s.type.padEnd(10)} start ${s.start.toFixed(2).padStart(6)}s  dur ${s.dur.toFixed(2)}s`));
-console.log('\nreading check (0.7s + words/3 on screen):');
+console.log('\nreading check (0.7s + words/3 per block, read one after another; time left after the blocks before it are read):');
 let allOk = true; TL.reading.forEach(r => { allOk &&= r.ok; console.log(`  ${r.ok ? 'ok   ' : 'SHORT'} [${r.scene}] ${r.label.slice(0, 48).padEnd(48)} ${String(r.words).padStart(2)}w  ${r.have.toFixed(2)}s / ${r.need.toFixed(2)}s`); });
 const warnings = TL.warnings || [];
 if (warnings.length) { console.log('\nlayout:'); warnings.forEach(w => console.log(`  TOO SMALL [${w.scene}] ${w.msg}`)); }

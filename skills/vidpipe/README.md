@@ -4,7 +4,7 @@
 
 Give your agent an article (a URL, a Markdown file, a README). It writes a scene list from the article's own facts and renders a 720p MP4: animated captions, numbers, charts and diagrams. No audio, at most 60 seconds.
 
-- **Paced for reading.** Every piece of text stays on screen for at least 0.7 s + words ÷ 3. If anything would flash by, the renderer refuses and names the scene to fix.
+- **Paced for reading.** Each piece of text gets 0.7 s + words ÷ 3 (subtitle pace, about 180 words a minute), and text that shares the screen adds up: the check reads like one viewer, block by block. If anything would flash by, the renderer refuses and names the scene to fix.
 - **Hard limits.** 720p, 30 fps, no sound, 60 s maximum. Text is never shrunk to fit; too much text is an error.
 - **Facts from the article only.** The skill tells the agent to use the article's own numbers and never to invent figures.
 - **Check before you wait.** `--check` reports timing in about a second. `--preview` draws one contact sheet. Only then does it do the full render.

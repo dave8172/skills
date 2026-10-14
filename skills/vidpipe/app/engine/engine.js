@@ -277,11 +277,14 @@ function plan(spec){
     if(!p.noCaption&&caps[0]) blocks.push([`caption: ${caps[0]}`,words(caps[0]),CAP_IN]);
     if(caps[1]) blocks.push([`caption: ${caps[1]}`,words(caps[1]),(p.cap2??1.7)+0.5]);
     (p.vis||[]).forEach(v=>{if(v[1]>0) blocks.push(v);});
-    let D=Math.max(p.min||0,p.landed||0,...blocks.filter(b=>b[3]==null).map(([_,w,a])=>a+need(w)))+(p.noExit?0:EXIT);
+    // one reader: blocks are read in the order they appear, each only after the one before it is read,
+    // so text that shares the screen adds up (two 7-word captions over a 13-word list need 11 s, not 5)
+    blocks.sort((x,y)=>x[2]-y[2]); let f=0; const rs=blocks.map(([_,w,a])=>{const s=Math.max(a,f); f=s+need(w); return s;});
+    let D=Math.max(p.min||0,p.landed||0,f)+(p.noExit?0:EXIT);
     if(sc.hold) D+=sc.hold;
     sc._p=p; sc._caps=caps; sc._start=t; sc._dur=D;
-    blocks.forEach(([l,w,a,lv])=>{const leave=lv??(D-(p.noExit?0:EXIT));
-      rows.push({scene:i,type:sc.type,label:l,words:w,have:+(leave-a).toFixed(2),need:+need(w).toFixed(2),ok:leave-a>=need(w)-1e-6});});
+    blocks.forEach(([l,w,a,lv],k)=>{const leave=lv??(D-(p.noExit?0:EXIT)), have=leave-rs[k];
+      rows.push({scene:i,type:sc.type,label:l,words:w,have:+have.toFixed(2),need:+need(w).toFixed(2),ok:have>=need(w)-1e-6});});
     fast.push([t-0.05,t+0.75],[t+D-0.35,t+D+0.05]); (p.fast||[]).forEach(([a,b])=>fast.push([t+a,t+b]));
     if(sc.chapter){const ch=[].concat(sc.chapter); if(ch.length>1&&p.split!=null){chap.push([ch[0],t,t+p.split],[ch[1],t+p.split,t+D-OVL]);} else chap.push([ch[0],t,t+D-OVL]);}
     t+=D-(i<spec.scenes.length-1?OVL:0);
