@@ -1,0 +1,9 @@
+{
+  "intro": { "title": "Tiny list", "text": "A to-do list that tidies what you type.", "tag": "A real run, at real speed" },
+  "end": { "title": "Try it yourself.", "url": "example.com/tiny-list", "text": "Free, in your browser." },
+  "captions": [
+    { "from": "start", "text": "Type a task, the way you'd say it." },
+    { "from": "add", "tag": "Add", "text": "It tidies the task, then adds it." },
+    { "from": "add+3.5", "text": "Capital letter, full stop. Every time." }
+  ]
+}

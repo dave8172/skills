@@ -31,7 +31,7 @@
     },
     {
       "name": "vidpipe",
-      "description": "Turn an article into a silent 720p explainer video of at most 60 s, paced so every word can be read",
+      "description": "Silent 720p videos paced so every word can be read: explainers from articles, and demos of real web apps filmed frame by frame at real speed",
       "source": "./",
       "strict": false,
       "skills": [

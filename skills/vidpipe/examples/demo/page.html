@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Tiny list</title><style>
+body { margin: 0; font: 22px/1.4 system-ui, sans-serif; background: #f6f4ef; color: #17171c; }
+header { height: 64px; background: #17171c; color: #f6f4ef; display: flex; align-items: center; padding: 0 32px; font-weight: 700; }
+main { max-width: 640px; margin: 120px auto 0; }
+form { display: flex; gap: 12px; }
+input { flex: 1; font: inherit; padding: 12px 14px; border: 2px solid #17171c; background: #fff; }
+button { font: inherit; font-weight: 700; padding: 12px 22px; border: 2px solid #17171c; background: #ff5a1f; cursor: pointer; }
+#msg { height: 32px; margin: 14px 0; color: #77756e; }
+.dot { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 50%; background: #ff5a1f; animation: pulse .6s ease-in-out infinite alternate; }
+@keyframes pulse { to { opacity: .2; transform: scale(.6); } }
+ul { list-style: none; padding: 0; }
+li { padding: 14px 16px; margin-bottom: 10px; background: #fff; border: 2px solid #17171c; transition: transform .4s ease, opacity .4s ease; }
+li.new { transform: translateX(-30px); opacity: 0; }
+</style></head><body>
+<header>Tiny list</header>
+<main>
+  <form id="f"><input id="task" placeholder="Add a task" autocomplete="off"><button>Add</button></form>
+  <div id="msg">Nothing yet.</div>
+  <ul id="list"></ul>
+</main>
+<script>
+// a pretend slow helper: it "tidies" the task for 1.2 s, then adds it
+f.onsubmit = (e) => { e.preventDefault(); const t = task.value.trim(); if (!t) return; task.value = '';
+  msg.innerHTML = '<span class="dot"></span>Tidying your task…';
+  setTimeout(() => { const li = document.createElement('li'); li.className = 'new'; li.textContent = t[0].toUpperCase() + t.slice(1).replace(/\.?$/, '.');
+    list.append(li); requestAnimationFrame(() => requestAnimationFrame(() => li.classList.remove('new')));
+    msg.textContent = `${list.children.length} task${list.children.length > 1 ? 's' : ''}. Done.`; }, 1200); };
+</script></body></html>

@@ -1,9 +1,14 @@
 ---
 name: vidpipe
-description: Turn an article, blog post or doc into a short silent explainer video, a 720p MP4 of at most 60 seconds with animated text, charts and diagrams, paced so every word can be read. Writes a JSON scene spec from the article's own facts, checks the reading time, previews it, then renders with headless Chromium and ffmpeg. Use when the user asks to turn an article, post, README or URL into a video, explainer, reel or clip, or runs /vidpipe.
+description: Make short silent videos, paced so every word can be read. Two modes. Explainer turns an article, blog post or doc into a 720p MP4 of at most 60 seconds with animated text, charts and diagrams. Demo films a real web app, tool or game in action (a live run recorded, then replayed frame by frame at real speed) with an intro card, captions and an end card. Both check the reading time, preview, then render with headless Chromium and ffmpeg. Use when the user asks to turn an article, post, README or URL into a video, explainer, reel or clip; for a demo, walkthrough or screen recording of an app, tool or game, or a video that shows it working; or runs /vidpipe.
 ---
 
-# vidpipe — article → silent explainer video
+# vidpipe — silent explainer and demo videos
+
+**Pick the mode first, from the user's words.**
+- **Explainer** ("explain", "turn this article into a video"): words, numbers and diagrams from an article. This file.
+- **Demo** ("demo", "walkthrough", "show it working", "screen recording", a video of an app, tool or game): the real thing running, with a short intro and captions over it. **Read `DEMO.md` in this folder and follow it instead of the workflow below.** Never hand over an explainer when a demo was asked for.
+- Unclear? Ask which one, in one line.
 
 You write one JSON **spec** (a list of scenes) from the article. The bundled renderer turns it into a 720p, 30 fps MP4 with **no audio**. Timing comes from a reading rule, so text never flashes by.
 

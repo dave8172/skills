@@ -5,7 +5,7 @@
 | Skill | What it does |
 |---|---|
 | [**upsweep**](skills/upsweep) | Finds Upwork jobs that match your filters, and sums up what clients in your niche keep asking for. Uses Upwork's official MCP, with your own login. |
-| [**vidpipe**](skills/vidpipe) | Turns an article into a silent 720p explainer video of at most 60 s, paced so every word can be read. |
+| [**vidpipe**](skills/vidpipe) | Silent 720p videos paced so every word can be read: an explainer from an article (at most 60 s), or a demo of a real web app running, recorded live and filmed frame by frame at real speed (at most 120 s). |
 | [**clean-ram**](skills/clean-ram) | Frees memory on a small Linux machine: finds the browsers and dev servers that agent sessions left behind, and stops the ones you approve. |
 | [**close-session**](skills/close-session) | Ends a session cleanly: saves what the next session needs into your memory or notes, compactly and in sections. |
 

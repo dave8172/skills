@@ -75,6 +75,7 @@ if (opt('preview', false)) {
 await main.browser.close();
 
 // ---------- full render ----------
+fs.mkdirSync(path.dirname(OUT), { recursive: true });   // ffmpeg cannot create the folder itself
 const N = Math.ceil(TL.duration * FPS);
 const fast = t => TL.fast.some(([a, b]) => t >= a && t <= b);
 const subs = [...Array(N)].map((_, n) => (BLUR > 1 && fast(n / FPS)) ? BLUR : 1);

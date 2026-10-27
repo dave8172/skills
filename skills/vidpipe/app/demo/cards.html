@@ -1,0 +1,47 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Disp;src:url(../node_modules/@fontsource-variable/inter-tight/files/inter-tight-latin-wght-normal.woff2) format('woff2');font-weight:100 900}
+:root{--paper:#f6f4ef;--ink:#17171c;--mute:#77756e;--acc:#ff5a1f;--card:#fffdf8}
+*{margin:0;box-sizing:border-box}
+html,body{width:1280px;height:720px;overflow:hidden;background:transparent;font-family:Disp,system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.card{position:absolute;inset:0;background:var(--paper);display:flex;align-items:center;gap:64px;padding:0 96px}
+.card img{flex:none;max-width:380px;max-height:460px;object-fit:contain}
+.card .t{flex:1;min-width:0}
+h1{font-weight:760;letter-spacing:-.03em;line-height:1.02;white-space:pre-line}
+#intro h1{font-size:96px} #end h1{font-size:68px}
+.card p{margin-top:24px;font-size:36px;font-weight:480;line-height:1.25;color:var(--mute);white-space:pre-line}
+#end p{font-size:30px}
+.tag{display:inline-block;margin-top:34px;padding:10px 18px;font-size:26px;font-weight:700;border:3px solid var(--ink);background:var(--card);box-shadow:5px 5px 0 var(--acc)}
+.url{display:inline-block;margin-top:30px;padding:16px 22px;font-size:40px;font-weight:700;color:var(--paper);background:var(--ink);box-shadow:6px 6px 0 var(--acc);white-space:nowrap}
+#cap{position:absolute;left:48px;width:1184px;min-height:76px;padding:12px 24px;background:var(--ink);color:var(--paper);box-shadow:4px 4px 0 var(--acc);
+  display:flex;align-items:center;gap:18px;font-size:31px;font-weight:650;line-height:1.2;white-space:nowrap;overflow:hidden}
+#cap b{flex:none;font-size:22px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:8px 10px;background:var(--acc);color:var(--ink)}
+</style></head><body>
+<script>
+// CARD(kind, data, theme) draws one card: "intro" {title, text?, tag?, image?}, "end" {title, url, text?},
+// or "cap" {tag?, color?, text, at: "top"|"bottom"}. font: an optional data URL for the product's own typeface. Returns overflowing element names (empty = fits).
+window.CARD = async (kind, d, theme = {}, font) => {
+  for (const [k, v] of Object.entries(theme)) document.documentElement.style.setProperty('--' + k, v);
+  if (font) { const f = new FontFace('Brand', `url(${font})`, { weight: '100 900' }); document.fonts.add(await f.load()); document.body.style.fontFamily = 'Brand, Disp, system-ui, sans-serif'; }
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const bad = [];
+  if (kind === 'cap') {
+    const c = el('div'); c.id = 'cap'; c.style[d.at === 'bottom' ? 'bottom' : 'top'] = '14px';
+    if (d.tag) { const b = el('b', '', d.tag); if (d.color) b.style.background = d.color; c.append(b); }
+    const s = el('span', '', d.text); c.append(s); document.body.append(c);
+    await document.fonts.ready;
+    if (c.scrollWidth > c.clientWidth + 1) bad.push('caption is wider than the frame');
+    return bad;
+  }
+  const c = el('section', 'card'); c.id = kind;
+  if (d.image) { const i = el('img'); i.src = d.image; c.append(i); await i.decode().catch(() => bad.push('image did not load')); }
+  const t = el('div', 't'); t.append(el('h1', '', d.title));
+  if (kind === 'end' && d.url) t.append(el('span', 'url', d.url));
+  if (d.text) t.append(el('p', '', [].concat(d.text).join('\n')));
+  if (kind === 'intro' && d.tag) t.append(el('span', 'tag', d.tag));
+  c.append(t); document.body.append(c);
+  await document.fonts.ready;
+  for (const e of t.querySelectorAll('*')) if (e.scrollWidth > t.clientWidth + 1) bad.push(`${e.tagName.toLowerCase()} is wider than the card`);
+  if (t.scrollHeight > 640) bad.push('text is taller than the card');
+  return bad;
+};
+</script></body></html>

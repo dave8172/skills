@@ -1,6 +1,6 @@
 # vidpipe
 
-**Turn an article into a short, silent explainer video that people can actually read.**
+**Short, silent videos that people can actually read: explainers from articles, and demos of real apps.**
 
 Give your agent an article (a URL, a Markdown file, a README). It writes a scene list from the article's own facts and renders a 720p MP4: animated captions, numbers, charts and diagrams. No audio, at most 60 seconds.
 
@@ -31,6 +31,24 @@ node render.mjs ../skills/vidpipe/examples/dns.json --out dns.mp4
 ```
 
 The spec format and every scene type are in [`SKILL.md`](SKILL.md).
+
+## Demo mode
+
+Ask for *"a demo video of <your web app>"*. The agent scripts a viewer (taps, typing, waits) and films the real page running, then adds an intro card, captions and an end card.
+
+- **Real run, real speed.** `record` runs the app live once and saves the answers from its server or model, with their latencies. `film` replays them into the real page under a manual clock, one exact 1/30 s frame at a time, so the video is smooth even on a one-core machine that can't capture live. Answers are never written by hand.
+- **Same reading rule.** Captions and cards get 0.7 s + words ÷ 3. Captions must fit on one line. At most 120 s.
+- **Fits a size cap.** `--max-mb 5` raises the compression until the file fits.
+
+```bash
+cd vidpipe
+node demo.mjs record ../skills/vidpipe/examples/demo/shot.mjs --out take1    # live run
+node demo.mjs film ../skills/vidpipe/examples/demo/shot.mjs --calls take1 --out film
+node demo.mjs compose ../skills/vidpipe/examples/demo/video.json --film film --preview
+node demo.mjs compose ../skills/vidpipe/examples/demo/video.json --film film --out tiny.mp4 --max-mb 5
+```
+
+Measured on one CPU core: filming 78 s of a web app took 4.5 minutes; encoding the 92 s video took 1.7 minutes and gave 2.5 MB. How to write a shot, and what the clock doesn't cover: [`DEMO.md`](DEMO.md).
 
 ## Good to know
 
