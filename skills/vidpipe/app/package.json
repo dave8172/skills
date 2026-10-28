@@ -13,7 +13,7 @@
   "engines": { "node": ">=18" },
   "dependencies": {
     "playwright": "^1.40.0",
-    "sharp": "^0.33.0",
+    "sharp": "^0.35.5",
     "@fontsource-variable/inter-tight": "^5.0.0",
     "@fontsource/jetbrains-mono": "^5.0.0"
   }
