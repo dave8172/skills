@@ -84,6 +84,9 @@ const total = subs.reduce((a, b) => a + b, 0);
 const chunks = []; { let acc = 0, start = 0; const per = total / WORKERS; for (let n = 0; n < N; n++) { acc += subs[n]; if (acc >= per * (chunks.length + 1) && chunks.length < WORKERS - 1) { chunks.push([start, n + 1]); start = n + 1; } } chunks.push([start, N]); }
 log(`rendering ${N} frames (${total} captures, ${RES}p${FPS}) on ${chunks.length} worker(s)…`);
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'vidpipe-'));
+// removed on every exit: a finished render, --check, --preview, an error, Ctrl-C
+process.on('exit', () => fs.rmSync(tmp, { recursive: true, force: true }));
+for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => process.exit(130));
 let done = 0;
 await Promise.all(chunks.map(async ([a, b], w) => {
   const { browser, shot } = await openPage();
@@ -102,5 +105,5 @@ await Promise.all(chunks.map(async ([a, b], w) => {
 }));
 fs.writeFileSync(path.join(tmp, 'list.txt'), chunks.map((_, w) => `file 'seg${w}.mp4'`).join('\n'));
 await new Promise((res, rej) => spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', path.join(tmp, 'list.txt'), '-c', 'copy', '-an', '-movflags', '+faststart', OUT], { stdio: 'inherit' }).on('close', c => c ? rej(c) : res()));
-fs.rmSync(tmp, { recursive: true, force: true }); server.close();
+server.close();
 log(`done → ${OUT}  (${(fs.statSync(OUT).size / 1e6).toFixed(1)} MB, ${TL.duration.toFixed(1)}s video)`);

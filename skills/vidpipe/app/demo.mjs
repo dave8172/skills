@@ -332,6 +332,9 @@ if (!ok) process.exit(2); if (tooLong) process.exit(3);
 
 // draw the cards
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'vidpipe-demo-'));
+// removed on every exit: a finished render, --check, --preview, an error, Ctrl-C
+process.on('exit', () => fs.rmSync(tmp, { recursive: true, force: true }));
+for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => process.exit(130));
 const server = http.createServer((q, s) => { const p = path.join(ROOT, decodeURIComponent(q.url.split('?')[0])); if (!p.startsWith(ROOT) || !fs.existsSync(p)) { s.writeHead(404); return s.end(); }
   s.writeHead(200, { 'content-type': p.endsWith('.html') ? 'text/html' : p.endsWith('.woff2') ? 'font/woff2' : 'application/octet-stream' }); fs.createReadStream(p).pipe(s); });
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
@@ -387,4 +390,3 @@ for (let crf = +opt('crf', 22); ; crf += 2) {
   if (size <= maxBytes) { console.log(`${OUT}  ${total.toFixed(1)} s  ${(size / 1e6).toFixed(2)} MB  CRF ${crf}`); break; }
   if (crf >= 34) { console.error(`still ${(size / 1e6).toFixed(2)} MB at CRF ${crf}: shorten the film`); process.exit(4); }
 }
-fs.rmSync(tmp, { recursive: true, force: true });
