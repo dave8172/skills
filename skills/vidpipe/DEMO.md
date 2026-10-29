@@ -5,7 +5,7 @@ A demo shows the real app, tool or game running. It is a short intro card (what 
 ## Fixed rules
 
 - **A real run only.** Every answer from a model or API comes from a live recording (`record`), never typed by hand or edited. If a take doesn't show what you want, record another take or change the setup. Never change what the app did. "A real run, at real speed" is a true label, because the film keeps every recorded latency.
-- **Silent, 720p, 30 fps, at most 120 s** (refused over, exit 3). Aim for 30–60 s for a launch or social post, up to 90 s for a full walkthrough. Ask where it will be posted: some launch sites take only a link to a hosted video (such as YouTube), not a file.
+- **Silent, 720p, 30 fps, at most 180 s** (refused over, exit 3). Aim for 30–60 s for a launch or social post, up to 90 s for a full walkthrough, longer for an explainer that pauses between actions. Ask where it will be posted: some launch sites take only a link to a hosted video (such as YouTube), not a file.
 - **Readable.** Captions and cards follow the same rule as explainers: **0.7 s + words ÷ 3**, with a caption's tag counted. A caption is one line (a wider one is refused). Captions never overlap. On `SHORT`: move a mark, add a wait in the director, or cut words. Never work around the check (exit 2).
 - **One caption at a time, 10 words or fewer.** Each one says what the viewer is seeing or why it matters. Every number says what it applies to. A caption claims only what its frames show.
 - **Cost.** `record` runs the app for real. If the app calls a paid API, estimate the cost and tell the user before each take. `film` and `compose` replay the recording and cost nothing.

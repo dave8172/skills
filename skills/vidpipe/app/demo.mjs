@@ -3,7 +3,7 @@
 // The film is the real page, its real code and animations. Only the responses of requests matching the shot's
 // `replay` pattern come from the recording, at their recorded latencies. A manual clock drives timers, animation
 // frames, scrolls and every CSS/Web Animation, so each frame is exactly 1/30 s apart however slow the machine is.
-// Refuses captions or cards that fail the reading rule (exit 2) and videos over 120 s (exit 3).
+// Refuses captions or cards that fail the reading rule (exit 2) and videos over 180 s (exit 3).
 // Browser: Playwright's Chromium, or set VIDPIPE_CHROME to an installed Chrome/Chromium binary.
 import { chromium } from 'playwright';
 import http from 'http';
@@ -26,7 +26,7 @@ const USAGE = `vidpipe demo: film a real web app in action, then add cards and c
   Several pages: film one shot per page, then --film film1,film2 (or "film": [...] in video.json).`;
 const usage = () => { console.error(USAGE); process.exit(1); };
 if (!['record', 'film', 'compose'].includes(cmd) || !input) usage();
-const FPS = 30, W = 1280, H = 720, MAX_SECONDS = 120;
+const FPS = 30, W = 1280, H = 720, MAX_SECONDS = 180;
 const need = (words) => 0.7 + words / 3;
 const words = (...s) => s.flat().filter(Boolean).join(' ').split(/\s+/).filter(Boolean).length;
 const launch = () => chromium.launch({ executablePath: process.env.VIDPIPE_CHROME || undefined, args: ['--font-render-hinting=none', '--force-color-profile=srgb', '--disable-gpu', '--hide-scrollbars'] });

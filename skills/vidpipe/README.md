@@ -37,7 +37,7 @@ The spec format and every scene type are in [`SKILL.md`](SKILL.md).
 Ask for *"a demo video of <your web app>"*. The agent scripts a viewer (taps, typing, waits) and films the real page running, then adds an intro card, captions and an end card.
 
 - **Real run, real speed.** `record` runs the app live once and saves the answers from its server or model, with their latencies. `film` replays them into the real page under a manual clock, one exact 1/30 s frame at a time, so the video is smooth even on a one-core machine that can't capture live. Answers are never written by hand.
-- **Same reading rule.** Captions and cards get 0.7 s + words ÷ 3. Captions must fit on one line. At most 120 s.
+- **Same reading rule.** Captions and cards get 0.7 s + words ÷ 3. Captions must fit on one line. At most 180 s.
 - **Fits a size cap.** `--max-mb 5` raises the compression until the file fits.
 - **Several pages.** Film one shot per page and join them in one video, with a cut between pages.
 - **Catches common mistakes.** It warns about runs of blank frames and captions that sit over a fixed header.
