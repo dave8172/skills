@@ -29,7 +29,7 @@ window.CARD = async (kind, d, theme = {}, font) => {
     if (d.tag) { const b = el('b', '', d.tag); if (d.color) b.style.background = d.color; c.append(b); }
     const s = el('span', '', d.text); c.append(s); document.body.append(c);
     await document.fonts.ready;
-    if (c.scrollWidth > c.clientWidth + 1) bad.push('caption is wider than the frame');
+    if (c.scrollWidth > c.clientWidth + 1) bad.push(`it is ${c.scrollWidth - c.clientWidth} px wider than one line: cut words${d.tag ? ' or shorten the tag' : ''}, or split it into two captions`);
     return bad;
   }
   const c = el('section', 'card'); c.id = kind;
@@ -40,8 +40,13 @@ window.CARD = async (kind, d, theme = {}, font) => {
   if (kind === 'intro' && d.tag) t.append(el('span', 'tag', d.tag));
   c.append(t); document.body.append(c);
   await document.fonts.ready;
-  for (const e of t.querySelectorAll('*')) if (e.scrollWidth > t.clientWidth + 1) bad.push(`${e.tagName.toLowerCase()} is wider than the card`);
-  if (t.scrollHeight > 640) bad.push('text is taller than the card');
+  // name the field that overflows and the fix: a word or URL can't wrap, so it needs the width an image takes
+  const field = (e) => e.tagName === 'H1' ? 'title' : e.classList.contains('url') ? 'url' : e.classList.contains('tag') ? 'tag' : 'text';
+  const room = d.image ? ', or drop the image to give the text the full width' : '';
+  const fix = { title: 'shorten it, or break it with a newline' + room, url: 'use a shorter URL' + room, tag: 'shorten it' + room,
+    text: 'its longest word or line is too wide: shorten it' + room };
+  for (const e of t.querySelectorAll('*')) if (e.scrollWidth > t.clientWidth + 1) bad.push(`${field(e)} "${e.textContent.slice(0, 40)}" is ${e.scrollWidth - t.clientWidth} px wider than the ${t.clientWidth} px it has: ${fix[field(e)]}`);
+  if (t.scrollHeight > 640) bad.push(`title and text together are ${t.scrollHeight - 640} px taller than the card: cut lines from text${d.image ? ', or drop the image so lines wrap less' : ''}`);
   return bad;
 };
 </script></body></html>

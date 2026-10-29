@@ -20,8 +20,8 @@ const USAGE = `vidpipe demo: film a real web app in action, then add cards and c
   node demo.mjs record  shot.mjs [--out take1]                   live run; saves the app's answers (calls.json) and marks
   node demo.mjs film    shot.mjs [--calls take1] [--out film]    replays that run frame by frame at exactly 30 fps
                                                                  (--calls only if the shot has \`replay\`; --debug logs every frame)
-  node demo.mjs compose video.json --film film --check           caption + card timing only
-  node demo.mjs compose video.json --film film --preview         contact sheet, one frame per caption
+  node demo.mjs compose video.json --film film --check           caption + card timing, and captions over a moving scene
+  node demo.mjs compose video.json --film film --preview         contact sheet: each caption and each stretch between them
   node demo.mjs compose video.json --film film --out demo.mp4 [--max-mb 5]
   Several pages: film one shot per page, then --film film1,film2 (or "film": [...] in video.json).`;
 const usage = () => { console.error(USAGE); process.exit(1); };
@@ -126,19 +126,21 @@ const DIRECTOR_KIT = (finger, cropTop) => `(() => {
   const f = document.createElement('div');
   Object.assign(f.style, { position: 'fixed', left: '50%', top: '75%', width: '28px', height: '28px', margin: '-14px 0 0 -14px', borderRadius: '50%',
     background: ${JSON.stringify(finger.fill)}, border: '3px solid ' + ${JSON.stringify(finger.ring)}, zIndex: 2147483647, pointerEvents: 'none',
-    transition: 'left .6s cubic-bezier(.3,.7,.2,1), top .6s cubic-bezier(.3,.7,.2,1), transform .15s ease' });
+    transition: 'left .6s cubic-bezier(.3,.7,.2,1), top .6s cubic-bezier(.3,.7,.2,1), transform .15s ease, opacity .3s ease' });
   const t0 = performance.now(); const marks = [];
+  // the finger leaves by itself 1 s after the last press, so it doesn't sit on the result; the next point brings it back
+  let idle; const show = () => { clearTimeout(idle); f.style.opacity = '1'; }, rest = () => { clearTimeout(idle); idle = setTimeout(() => { f.style.opacity = '0'; }, 1000); };
   const D = window.__D = {
     $: (s) => document.querySelector(s), $$: (s) => [...document.querySelectorAll(s)],
     wait: vs,
     mark: (what) => marks.push({ t: +((performance.now() - t0) / 1000).toFixed(3), what }),
-    async point(t) { const e = el(t); if (!e) throw new Error('not found: ' + t); if (!f.isConnected) document.body.append(f);
+    async point(t) { const e = el(t); if (!e) throw new Error('not found: ' + t); if (!f.isConnected) document.body.append(f); show();
       await __glide(() => { e.scrollIntoView({ block: 'nearest', inline: 'nearest' });   // glides into the filmed band, clear of cropTop and caption bars
         const top = ${cropTop} + 100, bot = innerHeight - 100, r = e.getBoundingClientRect(), s = document.scrollingElement;
         if (r.top < top) s.scrollTop -= top - r.top; else if (r.bottom > bot) s.scrollTop += Math.min(r.bottom - bot, r.top - top); }, __scrollers(e), 500);
       await vs(120); const r = e.getBoundingClientRect();
       f.style.left = (r.left + r.width / 2) + 'px'; f.style.top = (r.top + r.height / 2) + 'px'; await vs(700); return e; },
-    async press(t, what) { const e = await D.point(t); f.style.transform = 'scale(.7)'; await vs(150); f.style.transform = 'scale(1)'; if (what) D.mark(what); return e; },
+    async press(t, what) { const e = await D.point(t); f.style.transform = 'scale(.7)'; await vs(150); f.style.transform = 'scale(1)'; rest(); if (what) D.mark(what); return e; },
     async tap(t, what) { const e = await D.press(t); e.click(); if (what) D.mark(what); return e; },
     async type(t, text, perSecond = 14) { const e = await D.tap(t); for (const ch of text) { e.value += ch; e.dispatchEvent(new Event('input', { bubbles: true })); await vs(1000 / perSecond); } return e; },
     async until(test, timeout = 180000) { const fn = typeof test === 'string' ? () => document.querySelector(test) : test;
@@ -147,8 +149,12 @@ const DIRECTOR_KIT = (finger, cropTop) => `(() => {
       new MutationObserver(run).observe(document.body, { childList: true, subtree: true, characterData: true }); run(); },
     scroll(t, top, ms = 600) { const e = t == null ? document.scrollingElement : el(t); return __glide(() => { e.scrollTop = top; }, [e], ms); },
     done: () => { D.mark('end'); window.__done = true; },
-    marks, finger: f,
+    marks, finger: f, acts: [],
   };
+  // what the director does on screen (finger, typing, scrolling), so compose can flag a caption that sits over an action
+  const sec = () => +((performance.now() - t0) / 1000).toFixed(3); let depth = 0;
+  for (const k of ['point', 'press', 'tap', 'type', 'scroll']) { const fn = D[k]; D[k] = async (t, ...a) => { const from = sec(); depth++;
+    try { return await fn(t, ...a); } finally { if (!--depth) D.acts.push([from, sec(), k + ' ' + (t == null ? 'page' : typeof t === 'string' ? t : t.tagName.toLowerCase() + (t.id ? '#' + t.id : ''))]); } }; }
 })();`;
 
 async function loadShot(file) {
@@ -239,9 +245,10 @@ if (cmd === 'film') {
     if (st.done && ++tail > FPS * 0.7) break;
   }
   const marks = await page.evaluate(() => window.__D.marks), err = await page.evaluate(() => window.__err), used = await page.evaluate(() => window.__replayed());
+  const acts = await page.evaluate(() => window.__D.acts);
   await browser.close();
   fs.writeFileSync(path.join(out, 'marks.json'), JSON.stringify(marks, null, 1));
-  fs.writeFileSync(path.join(out, 'film.json'), JSON.stringify({ frames: n, seconds: n / FPS, fixed }));
+  fs.writeFileSync(path.join(out, 'film.json'), JSON.stringify({ frames: n, seconds: n / FPS, fixed, acts }));
   if (debug) { fs.writeFileSync(path.join(out, 'debug.tsv'), 'frame\tt\tscrollX\tscrollY\tbytes\n' + rows.join('\n') + '\n'); console.log(`per-frame scroll and size → ${path.join(out, 'debug.tsv')}`); }
   for (const m of marks) console.log(`  ${m.t.toFixed(1).padStart(6)}s  ${m.what}`);
   console.log(`\n${n} frames, ${(n / FPS).toFixed(1)} s → ${out}`);
@@ -262,12 +269,13 @@ const spec = JSON.parse(fs.readFileSync(input, 'utf8')), specDir = path.dirname(
 const filmOpt = opt('film', false);
 const films = (typeof filmOpt === 'string' ? filmOpt.split(',').map((f) => path.resolve(f))
   : [].concat(spec.film ?? 'film').map((f) => path.resolve(specDir, f)));
-const marks = [], frames = [], fixed = [];
+const marks = [], frames = [], fixed = [], acts = [];
 for (const [i, dir] of films.entries()) {
   const off = frames.length / FPS, info = JSON.parse(fs.readFileSync(path.join(dir, 'film.json'), 'utf8'));
   for (const k of JSON.parse(fs.readFileSync(path.join(dir, 'marks.json'), 'utf8'))) {
     marks.push({ t: k.t + off, what: k.what }); if (films.length > 1) marks.push({ t: k.t + off, what: `${i + 1}:${k.what}` }); }
   for (const s of info.fixed || []) fixed.push({ t: s.t + off, u: Math.min(s.t + 0.5, info.seconds) + off, els: s.els });   // a sample stands for the next 0.5 s of its film
+  for (const [a, b, what] of info.acts || []) acts.push([a + off, b + off, what]);
   for (let j = 0; j < info.frames; j++) frames.push(path.join(dir, 'f', String(j).padStart(5, '0') + '.jpg'));
 }
 const filmLen = frames.length / FPS;
@@ -295,6 +303,29 @@ for (const [i, c] of caps.entries()) {
   const hit = new Set(fixed.filter((s) => s.t < c.b && s.u > c.a).flatMap((s) => s.els.filter(([, t, b]) => t < band[1] && b > band[0]).map(([name]) => name)));
   if (hit.size) console.log(`  COVERS caption ${i} sits over ${[...hit].join(', ')} (fixed or sticky): set captionAt, raise cropTop, or check the preview`);
 }
+// Explain, then act: a caption sits over a still scene, and an action plays with no caption, because a viewer can't
+// read and watch at once. Flags a caption over the director's own actions (finger, typing, scrolling), or over a page
+// that changes: film frames under it (10 a second, outside the caption bar) against its first frame. A blink or a
+// spinner stays under the 1% limit; a scene change or new content doesn't.
+const SW = 320, SH = 180, MOVES = 0.01, rowsOut = [Math.floor(band[0] / 4), Math.ceil(band[1] / 4)];
+const under = caps.map((c) => { const out = []; for (let i = Math.round(c.a * FPS); i < Math.min(frames.length, Math.round(c.b * FPS)); i += 3) out.push(i); return out; });
+if (under.flat().length) {
+  const raw = execFileSync('ffmpeg', ['-v', 'error', '-f', 'concat', '-safe', '0', '-protocol_whitelist', 'file,pipe,fd', '-i', '-',
+    '-vf', `scale=${SW}:${SH},format=gray`, '-f', 'rawvideo', 'pipe:1'], { input: under.flat().map((i) => `file 'file:${frames[i].replace(/'/g, "'\\''")}'`).join('\n'), maxBuffer: 4e9 });
+  const px = (k) => raw.subarray(k * SW * SH, (k + 1) * SW * SH), area = SW * (SH - (rowsOut[1] - rowsOut[0]));
+  let k = 0;
+  for (const [i, c] of caps.entries()) {
+    const busy = acts.find(([a, b]) => a < c.b - 0.05 && b > c.a + 0.05);   // 0.05 s: an action that ends as the caption starts is fine
+    let moved = null; const base = px(k);
+    for (let j = 1; j < under[i].length && moved == null; j++) { const fr = px(k + j); let n = 0;
+      for (let p = 0; p < SW * SH; p++) { const y = (p / SW) | 0; if ((y < rowsOut[0] || y >= rowsOut[1]) && Math.abs(fr[p] - base[p]) > 24) n++; }
+      if (n / area > MOVES) moved = under[i][j] / FPS; }
+    const span = `MOVES caption ${i} (${c.a.toFixed(1)}–${c.b.toFixed(1)} s)`;   // report whichever comes first
+    if (busy && (moved == null || busy[0] <= moved)) console.log(`  ${span} is up during "${busy[2]}" (${busy[0].toFixed(1)}–${busy[1].toFixed(1)} s). Mark the action and end the caption there (\`to\`), or start it after`);
+    else if (moved != null) console.log(`  ${span}: the scene changes under it from ${moved.toFixed(1)} s. End it where the action starts (\`to\`), or start it after the action`);
+    k += under[i].length;
+  }
+}
 const tooLong = total > MAX_SECONDS;
 console.log(`\nfilm ${filmLen.toFixed(1)} s, video ${total.toFixed(1)} s${tooLong ? `  ✗ over the ${MAX_SECONDS} s limit` : ''}   reading ${ok ? 'all ok' : 'HAS SHORT CAPTIONS: move a mark, add a wait in the director, or cut words'}`);
 if (!ok) process.exit(2); if (tooLong) process.exit(3);
@@ -310,20 +341,23 @@ const font = spec.font && `data:font/${path.extname(spec.font).slice(1)};base64,
 const draw = async (kind, d, file) => {
   await page.goto(`http://127.0.0.1:${server.address().port}/demo/cards.html`);
   const bad = await page.evaluate(([k, d, th, f]) => window.CARD(k, d, th, f), [kind, d, spec.theme || {}, font]);
-  if (bad.length) { console.error(`${kind === 'cap' ? `caption "${d.text}"` : kind + ' card'}: ${bad.join('; ')}. Cut words.`); process.exit(2); }
+  if (bad.length) { console.error(`${kind === 'cap' ? `caption "${d.text}"` : kind + ' card'} doesn't fit:\n  ${bad.join('\n  ')}`); process.exit(2); }
   await page.screenshot({ path: path.join(tmp, file), omitBackground: kind === 'cap' });
 };
 await draw('intro', { ...spec.intro, image: spec.intro.image && dataUrl(spec.intro.image) }, 'intro.png');
 await draw('end', { ...spec.end, image: spec.end.image && dataUrl(spec.end.image) }, 'end.png');
 for (const [i, c] of caps.entries()) await draw('cap', { tag: c.tag, color: c.color, text: c.text, at: spec.captionAt || 'top' }, `cap${i}.png`);
 const frame = (t) => frames[Math.min(frames.length - 1, Math.max(0, Math.round(t * FPS)))];
-if (opt('preview', false)) {   // one tile per caption, at its midpoint, plus both cards
+if (opt('preview', false)) {   // in film order: one tile per caption, one per stretch between captions (the actions), both cards
   const img = (p) => `data:image/${p.endsWith('.png') ? 'png' : 'jpeg'};base64,${fs.readFileSync(p).toString('base64')}`;
-  const tile = (bg, cap) => `<div><img src="${img(bg)}">${cap ? `<img src="${img(cap)}">` : ''}</div>`;
-  const tiles = [tile(path.join(tmp, 'intro.png')), ...caps.map((c, i) => tile(frame((c.a + c.b) / 2), path.join(tmp, `cap${i}.png`))), tile(path.join(tmp, 'end.png'))];
+  const tile = (bg, cap, label) => `<div><img src="${img(bg)}">${cap ? `<img src="${img(cap)}">` : ''}${label ? `<i>${label}</i>` : ''}</div>`;
+  const gap = (a, b) => b - a >= 0.5 ? [tile(frame((a + b) / 2), null, `${((a + b) / 2).toFixed(1)} s · no caption (${a.toFixed(1)}–${b.toFixed(1)} s)`)] : [];
+  const tiles = [tile(path.join(tmp, 'intro.png')),
+    ...caps.flatMap((c, i) => [...gap(i ? caps[i - 1].b : 0, c.a), tile(frame((c.a + c.b) / 2), path.join(tmp, `cap${i}.png`), `${((c.a + c.b) / 2).toFixed(1)} s · caption ${i}`)]),
+    ...gap(caps.at(-1)?.b ?? 0, filmLen), tile(path.join(tmp, 'end.png'))];
   await page.setViewportSize({ width: 1288, height: 400 });
   await page.setContent(`<style>body{margin:0;background:#fff;display:grid;grid-template-columns:640px 640px;gap:8px}div{position:relative;width:640px;height:360px}
-    img{position:absolute;inset:0;width:640px;height:360px}</style>${tiles.join('')}`);
+    img{position:absolute;inset:0;width:640px;height:360px}i{position:absolute;right:0;bottom:0;padding:4px 10px;background:#000c;color:#fff;font:600 18px system-ui,sans-serif}</style>${tiles.join('')}`);
   await page.evaluate(() => Promise.all([...document.images].map((i) => i.decode())));
   const out = input.replace(/\.json$/, '') + '.sheet.jpg';
   await page.screenshot({ path: out, fullPage: true, type: 'jpeg', quality: 85 });

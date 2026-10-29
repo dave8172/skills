@@ -1,12 +1,13 @@
 # vidpipe demo — a real tool in action
 
-A demo shows the real app, tool or game running. It is a short intro card (what it is, the question the run answers), then the run with one caption at a time saying what is happening, then an end card with the URL. Words alone are an explainer (`SKILL.md`), not a demo.
+A demo shows the real app, tool or game running. It is a short intro card (what it is, the question the run answers), then the run, with a caption between actions saying what comes next or what just happened, then an end card with the URL. Words alone are an explainer (`SKILL.md`), not a demo.
 
 ## Fixed rules
 
 - **A real run only.** Every answer from a model or API comes from a live recording (`record`), never typed by hand or edited. If a take doesn't show what you want, record another take or change the setup. Never change what the app did. "A real run, at real speed" is a true label, because the film keeps every recorded latency.
 - **Silent, 720p, 30 fps, at most 180 s** (refused over, exit 3). Aim for 30–60 s for a launch or social post, up to 90 s for a full walkthrough, longer for an explainer that pauses between actions. Ask where it will be posted: some launch sites take only a link to a hosted video (such as YouTube), not a file.
 - **Readable.** Captions and cards follow the same rule as explainers: **0.7 s + words ÷ 3**, with a caption's tag counted. A caption is one line (a wider one is refused). Captions never overlap. On `SHORT`: move a mark, add a wait in the director, or cut words. Never work around the check (exit 2).
+- **Explain, then act.** A caption shows only while the scene is still. While something happens on screen, there is no caption, because a viewer can't read and watch at once. Say what is about to happen (or what just did), then let it play. `compose` flags a caption over an action (`MOVES`).
 - **One caption at a time, 10 words or fewer.** Each one says what the viewer is seeing or why it matters. Every number says what it applies to. A caption claims only what its frames show.
 - **Cost.** `record` runs the app for real. If the app calls a paid API, estimate the cost and tell the user before each take. `film` and `compose` replay the recording and cost nothing.
 
@@ -48,7 +49,7 @@ Same `app` folder and setup as explainers. Keep `shot.mjs`, `video.json` and the
 
    | call | does |
    |---|---|
-   | `D.tap(target, mark?)` | moves the visible finger to a selector or element, presses, clicks |
+   | `D.tap(target, mark?)` | moves the visible finger to a selector or element, presses, clicks. The finger fades out 1 s after a press and comes back with the next `point` |
    | `D.press(target, mark?)` | the same press, without the click. Ends a shot on a link (see "Several pages") |
    | `D.type(target, text, perSecond = 14)` | taps the field, then types into it character by character |
    | `D.point(target)` | moves the finger without clicking. If the target is off screen, the page glides until it is at least 100 px clear of the top (below `cropTop`) and bottom, where captions sit |
@@ -58,10 +59,12 @@ Same `app` folder and setup as explainers. Keep `shot.mjs`, `video.json` and the
    | `D.mark(name)` | a named moment; captions hang on marks |
    | `await D.scroll(target, top, ms = 600)` | glides an element, or the page when target is `null`, to `top` px. `ms` 0 jumps |
    | `D.$`, `D.$$` | `querySelector`, and `querySelectorAll` as an array |
+   | `D.finger` | the finger element, to restyle it |
 
    Tips:
    - **Mark every beat a caption will hang on.** For app states, observe a status element and mark each change: `new MutationObserver(() => D.mark('status:' + el.textContent)).observe(el, { childList: true, characterData: true, subtree: true })`. A caption can then start at `"status:Done"`.
    - **Prompts:** answer prompts after about 2.5 s, so the viewer can read them.
+   - **Explain, then act:** mark the still moment before each action and the action's start, `D.mark('say2'); await D.wait(3600); D.mark('do2'); await D.tap(…)`, and hang the caption on both: `{ "from": "say2", "to": "do2" }`. Give each pause the caption's reading time. To caption a result, wait until the page settles, then mark.
    - **Captions:** keep them over a band of the page that doesn't change (`captionAt` top or bottom) and scroll what you caption into view.
    - **Scrolling:** use `D.scroll` or `D.point`, never a jump. The page's own smooth scrolls also glide on the film's clock.
    - **Ending:** hold 3–5 s on the result.
@@ -81,8 +84,8 @@ Same `app` folder and setup as explainers. Keep `shot.mjs`, `video.json` and the
    | `maxMB` | size cap; same as `--max-mb` |
 
    Card times come from the reading rule, so keep the intro short.
-6. **Check:** `node demo.mjs compose video.json --film film --check`. `COVERS` means a caption sits over a fixed or sticky part of the page, such as a header. Move the caption (`captionAt`), cut the header off with `cropTop`, or confirm in the preview that nothing important is hidden.
-7. **Preview:** run the same command with `--preview` and look at `video.sheet.jpg`. Check that each caption is true for its frame and covers nothing that matters.
+6. **Check:** `node demo.mjs compose video.json --film film --check`. `MOVES` means a caption is up during an action: a director step (tap, typing, scroll; named with its times), or the page changing under it (more than 1% of the frame outside the caption bar; a blink or a spinner stays under that). End the caption at the action's mark with `to`, or start it after. `COVERS` means a caption sits over a fixed or sticky part of the page, such as a header. Move the caption (`captionAt`), cut the header off with `cropTop`, or confirm in the preview that nothing important is hidden.
+7. **Preview:** run the same command with `--preview` and look at `video.sheet.jpg`. It has, in film order, one frame per caption and one per stretch between captions (the actions), each labelled with its time. Check that each caption is true for its frame and covers nothing that matters, and that each action shows what the next caption says.
 8. **Render:** `--out out/<slug>.mp4 [--max-mb 5]`. If the file is over the cap, vidpipe raises the CRF until it fits. App UIs compress well: 92 s at CRF 22 was 2.5 MB.
 9. **Report** the path, length, size and caption list. Say how it was made (recorded live, filmed frame by frame), so the user can describe it truthfully.
 
@@ -95,6 +98,37 @@ A shot films one page. A click that loads a new page ends the director, so `reco
 3. Join them in `video.json`: `"film": ["film-home", "film-category", "film-item"]`, or `--film film-home,film-category,film-item`. They play back to back with a cut between them. A mark in film 2 or later is also named `"2:start"`, `"3:leave"` and so on; a plain name finds the first film that has it. `"end"` is the last film's end.
 
 The cut skips the page load, so the time across a cut isn't real. Don't caption speed across a cut.
+
+## An animated "how it works"
+
+To show how a tool works inside (what it checks, what it saves), when a screen recording can't show it, animate it in a page and film that page.
+
+- **The page draws every frame from its own clock.** One `frame(t)` function sets every element from `t`, the seconds since `go()`, through `requestAnimationFrame`, which the film steps. Since everything comes from `t`, `at(s)` shows any second while building, and the timing lives in one place instead of in scattered timers and CSS animations.
+- **One table of times.** `T` holds when each action starts. A `BEATS` table on `window` names the marks the captions hang on: `sayA` while the scene is still, then `doA` when the action starts.
+- **The director only marks beats**, from the table, at their times. It touches the page only for a real input, such as tapping Deny on an approval dialog.
+- **Captions** go `{ "from": "sayA", "to": "doA" }`. Each pause in the page lasts at least the caption's reading time.
+
+```js
+// page.html
+const T = { scan: 6.0, stamp: 12.5 };                        // when each action starts, in seconds
+window.BEATS = { sayA: 1.5, doA: T.scan, sayB: 9.0, doB: T.stamp };
+let t0 = null;
+window.go = () => { t0 = performance.now(); };
+window.at = (s) => { t0 = performance.now() - s * 1000; };   // while building: at(9) shows second 9
+function frame(t) { /* place every element from t */ }
+(function loop() { frame(t0 == null ? -1 : (performance.now() - t0) / 1000); requestAnimationFrame(loop); })();
+
+// shot.mjs director
+async director(D) {
+  window.go(); const start = performance.now();
+  for (const [name, s] of Object.entries(window.BEATS).sort((a, b) => a[1] - b[1])) {
+    await D.wait(Math.max(0, s * 1000 - (performance.now() - start))); D.mark(name);
+  }
+  await D.wait(4000);                                          // hold on the result
+}
+```
+
+- **Honest labels.** The intro tag says "How it works". Never "A real run" or "a story": the scene is a drawing of what the tool does, not a run of it. If the end card claims anything ("No model calls"), the tool must do exactly that.
 
 ## What the clock doesn't cover
 

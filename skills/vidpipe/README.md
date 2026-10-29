@@ -40,7 +40,8 @@ Ask for *"a demo video of <your web app>"*. The agent scripts a viewer (taps, ty
 - **Same reading rule.** Captions and cards get 0.7 s + words ÷ 3. Captions must fit on one line. At most 180 s.
 - **Fits a size cap.** `--max-mb 5` raises the compression until the file fits.
 - **Several pages.** Film one shot per page and join them in one video, with a cut between pages.
-- **Catches common mistakes.** It warns about runs of blank frames and captions that sit over a fixed header.
+- **Explain, then act.** A caption shows while the scene is still, never during an action: a viewer can't read and watch at once. The check flags a caption over a tap, typing, a scroll or a changing page.
+- **Catches common mistakes.** It warns about runs of blank frames and captions that sit over a fixed header. A card that doesn't fit names the field and the fix.
 
 ```bash
 cd vidpipe
